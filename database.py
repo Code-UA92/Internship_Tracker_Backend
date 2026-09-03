@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.engine import URL
-from .setting import settings
+from setting import settings
 
 # Database connection url
 conn_URL = URL.create(
