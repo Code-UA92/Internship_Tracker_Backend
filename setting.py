@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     # App variables
     app_name: str = "Code 92 Internship Tracker"
-    environment: str = "development"
+    environment: str
     
     # Database variables
     db_driver: str

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.engine import URL
-from .setting import settings
+from setting import settings
 
 # Database connection url
 conn_URL = URL.create(
@@ -13,4 +13,4 @@ conn_URL = URL.create(
 )
 
 # Database engine for application
-engine = create_async_engine(conn_URL)
+engine = create_async_engine(conn_URL, echo = False if settings.environment == "production" else True)
