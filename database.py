@@ -13,4 +13,4 @@ conn_URL = URL.create(
 )
 
 # Database engine for application
-engine = create_async_engine(conn_URL)
+engine = create_async_engine(conn_URL, echo = False if settings.environment == "production" else True)
