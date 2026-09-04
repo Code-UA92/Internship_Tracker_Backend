@@ -10,3 +10,6 @@ async def load_tables():
         # Run reflection code synchronusly
         # Reflection can't be run asynchronusly
         await conn.run_sync(metadata_obj.reflect)
+
+async def get_metadata():
+    return metadata_obj.tables
