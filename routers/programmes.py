@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from database import engine
-from sqlalchemy import text
+from sqlalchemy import select
+from metadata import get_metadata
 
 # Initialise API router
 router = APIRouter(
@@ -14,11 +15,12 @@ async def read_programmes():
     return
 
 @router.get("/{id}")
-async def read_programme(id: int):
+async def read_programme(id: int, tables: dict = Depends(get_metadata)):
+
     # Retrieve a single programme in detail
     async with engine.connect() as conn:
         # SQL query to fetch the programme by ID
-        query = text("SELECT * FROM programmes WHERE programme_id = :id")
+        query = select(tables["programmes"]).where(tables["programmes"].c.programme_id == id)
         result = await conn.execute(query, {"id": id})
         
         # Get the first row as a dictionary
