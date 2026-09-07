@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from database import engine
-from sqlalchemy import select
+from sqlalchemy import select, func
 from metadata import get_metadata
 
 # Initialise API router
@@ -9,10 +9,34 @@ router = APIRouter(
     prefix="/programmes"
 )
 
-@router.get("")
-async def read_programmes():
-    # To be done: Retrieve programmes and apply filters
-    return
+@router.get("/all")
+async def read_programmes(
+    skip: int = Query(0, description= "Skip"),
+    limit: int = Query(10, ge=1, description="Programmes per page"),
+    tables: dict = Depends(get_metadata)
+):
+    async with engine.connect() as conn:
+        #For getting paginated programmes
+        query = select(tables["programmes"]).offset(skip).limit(limit)
+        result = await conn.execute(query)
+        programmes = result.mappings().all()
+
+        #For getting total programmes
+        count_programmes = select(func.count()).select_from(tables["programmes"])
+        count_result = await conn.execute(count_programmes)
+        total_programmes = count_result.scalar()
+
+        #For getting total pages
+        total_pages = (total_programmes + limit - 1) // limit
+    return {
+        "items": [dict(p) for p in programmes],
+        "skip": skip,
+        "limit": limit,
+        "total_programmes": total_programmes,
+        "total_pages": total_pages,
+        "has_next": skip +limit < total_programmes,
+        "has_prev": skip > 0
+    }
 
 @router.get("/{id}")
 async def read_programme(id: int, tables: dict = Depends(get_metadata)):
